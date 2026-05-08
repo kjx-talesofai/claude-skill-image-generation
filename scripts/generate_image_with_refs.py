@@ -19,13 +19,13 @@ def local_to_data_uri(path):
         data = base64.b64encode(f.read()).decode("ascii")
     return f"data:{mime};base64,{data}"
 
-def generate_image(prompt, api_key=None, size="1024x1024", images=None):
+def generate_image(prompt, api_key=None, size="1024x1024", quality="auto", images=None):
     if api_key is None:
         api_key = os.environ.get("GPT_IMAGE_API_KEY")
     if not api_key:
         raise ValueError("API key must be provided via --api-key or GPT_IMAGE_API_KEY env var")
     url = "https://new-api.talesofai.com/v1/images/generations"
-    payload = {"model": "gpt-image-2", "prompt": prompt, "size": size}
+    payload = {"model": "gpt-image-2", "prompt": prompt, "size": size, "quality": quality}
     if images:
         payload["image"] = images
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
@@ -38,6 +38,12 @@ def main():
     parser.add_argument("prompt", help="Image generation prompt")
     parser.add_argument("--api-key", help="API key")
     parser.add_argument("--size", default="1024x1024", help="Image size")
+    parser.add_argument(
+        "--quality",
+        default="auto",
+        choices=["auto", "low", "medium", "high"],
+        help="Image quality: auto (default), low, medium, or high",
+    )
     parser.add_argument("--image", action="append", dest="images", help="Reference image file or URL")
     args = parser.parse_args()
     refs = []
@@ -51,7 +57,7 @@ def main():
                 print(f"Error: file not found: {img}", file=sys.stderr)
                 return 1
     try:
-        result = generate_image(args.prompt, args.api_key, args.size, refs)
+        result = generate_image(args.prompt, args.api_key, args.size, args.quality, refs)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1

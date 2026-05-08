@@ -9,7 +9,13 @@ import urllib.request
 import urllib.error
 
 
-def generate_image(prompt: str, api_key: str | None = None, size: str = "1024x1024", images: list[str] | None = None) -> dict:
+def generate_image(
+    prompt: str,
+    api_key: str | None = None,
+    size: str = "1024x1024",
+    quality: str = "auto",
+    images: list[str] | None = None,
+) -> dict:
     if api_key is None:
         api_key = os.environ.get("GPT_IMAGE_API_KEY")
     if not api_key:
@@ -20,6 +26,7 @@ def generate_image(prompt: str, api_key: str | None = None, size: str = "1024x10
         "model": "gpt-image-2",
         "prompt": prompt,
         "size": size,
+        "quality": quality,
     }
     if images:
         payload["image"] = images
@@ -49,11 +56,17 @@ def main() -> int:
     parser.add_argument("prompt", help="Image generation prompt")
     parser.add_argument("--api-key", help="API key (or set GPT_IMAGE_API_KEY env var)")
     parser.add_argument("--size", default="1024x1024", help="Image size (default: 1024x1024)")
+    parser.add_argument(
+        "--quality",
+        default="auto",
+        choices=["auto", "low", "medium", "high"],
+        help="Image quality: auto (default), low, medium, or high",
+    )
     parser.add_argument("--image", action="append", dest="images", help="Reference image URL (can be used multiple times)")
     args = parser.parse_args()
 
     try:
-        result = generate_image(args.prompt, args.api_key, args.size, args.images)
+        result = generate_image(args.prompt, args.api_key, args.size, args.quality, args.images)
     except (ValueError, RuntimeError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1

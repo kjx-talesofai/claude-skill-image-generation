@@ -31,7 +31,22 @@ export GPT_IMAGE_API_KEY="your-key-here"
 ### Basic generation
 
 ```bash
-python scripts/generate_image.py "a cyberpunk cat in neon rain" --size 1024x1024
+python scripts/generate_image.py "a cyberpunk cat in neon rain" --size 1024x1024 --quality auto
+```
+
+### Quality
+
+Use `--quality` to control rendering quality:
+
+| Value | Description |
+|---|---|
+| `auto` | Default — model picks the best quality for the prompt |
+| `low` | Fast drafts and quick iterations, lowest token cost |
+| `medium` | Balanced quality and speed |
+| `high` | Best detail and fidelity, highest token cost |
+
+```bash
+python scripts/generate_image.py "a detailed fantasy landscape" --quality high
 ```
 
 ### With reference images (URLs)
@@ -48,6 +63,7 @@ The base script only accepts URLs. Use the companion wrapper for local files:
 
 ```bash
 python scripts/generate_image_with_refs.py "same character, battle pose" \
+  --quality high \
   --image ./portraits/serra.jpg \
   --image ./portraits/elena.png
 ```
