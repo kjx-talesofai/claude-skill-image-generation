@@ -1,5 +1,26 @@
 # 更新说明
 
+## Gemini 脚本兼容官方 API 格式（camelCase）
+
+### 问题
+
+中转层对接 Gemini 官方 API 后，请求/响应格式从供应商自定义的 snake_case 变为 Gemini 官方的 camelCase，导致：
+- 图片输入请求失败（`inline_data` → `inlineData`）
+- 响应解析找不到图片数据（`inline_data` → `inlineData`）
+
+### 修复
+
+`generate_gemini_image.py`：
+- 请求中 image input 字段统一使用 `inlineData` / `mimeType` / `data`（camelCase）
+- 响应解析同时兼容 `inlineData`（官方）和 `inline_data`（旧版），确保向后兼容
+
+### 影响脚本
+
+- `generate_gemini_image.py`
+- `generate_gemini_image_with_refs.py`（依赖主脚本，自动修复）
+
+---
+
 ## gpt-image skill 新增 `--quality` 参数支持
 
 ### 脚本变更

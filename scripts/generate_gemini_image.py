@@ -47,14 +47,14 @@ def _image_to_part(image: str) -> dict:
         if not match:
             raise ValueError(f"Invalid data URI: {image[:50]}...")
         mime, data = match.group(1), match.group(2)
-        return {"inline_data": {"mime_type": mime, "data": data}}
+        return {"inlineData": {"mimeType": mime, "data": data}}
     elif image.startswith("http://") or image.startswith("https://"):
         mime, data = _download_image(image)
-        return {"inline_data": {"mime_type": mime, "data": data}}
+        return {"inlineData": {"mimeType": mime, "data": data}}
     elif os.path.isfile(image):
         mime, data = _local_to_data_uri(image).split(";base64,")
         mime = mime.split(":")[1]
-        return {"inline_data": {"mime_type": mime, "data": data}}
+        return {"inlineData": {"mimeType": mime, "data": data}}
     else:
         raise ValueError(f"Image not found: {image}")
 
@@ -140,10 +140,10 @@ def generate_image(
             if result:
                 image_bytes, image_mime = result
                 break
-        elif "inline_data" in part:
-            inline = part["inline_data"]
+        elif "inline_data" in part or "inlineData" in part:
+            inline = part.get("inline_data") or part.get("inlineData")
             image_bytes = base64.b64decode(inline["data"])
-            image_mime = inline.get("mime_type", "image/png")
+            image_mime = inline.get("mime_type") or inline.get("mimeType", "image/png")
             break
 
     if image_bytes is None:
