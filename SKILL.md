@@ -1,6 +1,6 @@
 ---
 name: image-generation
-description: Generate images using GPT Image 2 or Gemini Image (Nano Banana) via proxy API endpoints. Trigger when the user says "gpt-image", "gemini-image", "nano banana", "use gpt to generate image", "use gemini to generate image", "create an image with gpt", "create an image with gemini", or any request to generate, create, draw, or make images.
+description: Generate images with GPT Image 2 or Gemini Image. Triggers: gpt-image, gemini-image, create image.
 ---
 
 # Image Generation
