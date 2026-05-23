@@ -110,6 +110,10 @@ The script prints JSON:
 }
 ```
 
+**Important:**
+- `file_path` is the path where the image was saved. If `--output` was provided, this is the exact path specified. If auto-named, the extension is derived from the API-returned `mime_type`.
+- `mime_type` is the actual image format returned by the API, which may differ from the file extension. For example, if you specify `--output result.png` but the API returns `image/jpeg`, the file is saved as `result.png` but `mime_type` reports `image/jpeg`. The file content is always the correct binary data.
+
 Present the generated image file path to the user. You can describe what was generated.
 
 ## Multi-turn Image Editing
@@ -124,6 +128,20 @@ python scripts/generate_gemini_image.py "a vibrant infographic about photosynthe
 # Follow-up edit
 python scripts/generate_gemini_image.py "Update this infographic to be in Spanish. Do not change any other elements." \
   --image ./photosynthesis.png --output photosynthesis_es.png
+```
+
+## Cross-Skill Workflow: Image → Video
+
+Gemini Image outputs local files, which can be used directly with the **video-generation** skill's `--image` parameter (auto-converted to data URI). For `--first-frame`, `--last-frame`, and `--reference-image`, upload to a public URL first.
+
+```bash
+# Generate with Gemini
+python scripts/generate_gemini_image.py "a warrior in a dark forest" \
+  --aspect-ratio 16:9 --output warrior.png
+
+# Pass directly to video-generation --image (local file supported)
+python ../video-generation/scripts/generate_video.py "slow pan across the warrior" \
+  --image ./warrior.png --model seedance-2-0
 ```
 
 ## Model Capabilities

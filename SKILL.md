@@ -48,6 +48,30 @@ Choose the model based on the user's request:
 
 For full parameter tables, size/quality references, and advanced usage, see the reference documents below.
 
+## Cross-Skill Workflow: Image → Video
+
+When generating a reference image for video generation (via the **video-generation** skill):
+
+- **Gemini Image** outputs a local file. The video-generation script accepts local file paths directly via `--image` (auto-converted to data URI).
+- **GPT Image 2** outputs a URL. Use it directly with `--image`, `--first-frame`, `--last-frame`, or `--reference-image`.
+
+```bash
+# Gemini → Video (local file)
+python image-generation/scripts/generate_gemini_image.py "a warrior in a dark forest" \
+  --aspect-ratio 16:9 --output warrior.png
+python video-generation/scripts/generate_video.py "slow pan across the warrior" \
+  --image ./warrior.png --model seedance-2-0
+
+# GPT Image → Video (URL)
+python image-generation/scripts/generate_image.py "a warrior in a dark forest" \
+  --size 1024x1024
+# Use the returned URL with video-generation
+python video-generation/scripts/generate_video.py "slow pan across the warrior" \
+  --image https://example.com/returned_url.jpg --model seedance-2-0
+```
+
+**Note:** For `--first-frame`, `--last-frame`, and `--reference-image` in video-generation, only URLs are accepted. Upload local files to a publicly accessible URL first if using those modes.
+
 ## Reference Documents
 
 - [`references/gpt-image-2.md`](references/gpt-image-2.md) — Full GPT Image 2 docs (sizes, quality, local refs, URL stability)
