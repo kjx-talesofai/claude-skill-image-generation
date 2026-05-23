@@ -130,20 +130,6 @@ python scripts/generate_gemini_image.py "Update this infographic to be in Spanis
   --image ./photosynthesis.png --output photosynthesis_es.png
 ```
 
-## Cross-Skill Workflow: Image → Video
-
-Gemini Image outputs local files, which can be used directly with the **video-generation** skill's `--image` parameter (auto-converted to data URI). For `--first-frame`, `--last-frame`, and `--reference-image`, upload to a public URL first.
-
-```bash
-# Generate with Gemini
-python scripts/generate_gemini_image.py "a warrior in a dark forest" \
-  --aspect-ratio 16:9 --output warrior.png
-
-# Pass directly to video-generation --image (local file supported)
-python ../video-generation/scripts/generate_video.py "slow pan across the warrior" \
-  --image ./warrior.png --model seedance-2-0
-```
-
 ## Model Capabilities
 
 - **Text rendering:** Excellent at generating legible, stylized text for infographics, menus, and logos.

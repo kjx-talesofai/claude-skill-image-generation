@@ -48,29 +48,44 @@ Choose the model based on the user's request:
 
 For full parameter tables, size/quality references, and advanced usage, see the reference documents below.
 
-## Cross-Skill Workflow: Image → Video
+## Execution Model & Expectations
 
-When generating a reference image for video generation (via the **video-generation** skill):
+Image generation is a **synchronous long-running POST request**. The script blocks until the API returns the image data.
 
-- **Gemini Image** outputs a local file. The video-generation script accepts local file paths directly via `--image` (auto-converted to data URI).
-- **GPT Image 2** outputs a URL. Use it directly with `--image`, `--first-frame`, `--last-frame`, or `--reference-image`.
+| Factor | Typical Range |
+|---|---|
+| Wait time | 2–5 minutes per image |
+| Gemini Image size impact | `512`/`1K` faster, `2K`/`4K` slower |
+| GPT Image quality impact | `auto`/`low` faster, `high` slower |
+
+The script does not return a task ID — it either succeeds with image data or fails with an error. Use `--submit-only` if the underlying workflow needs fire-and-forget behavior (not supported by current scripts; implement externally if needed).
+
+## Parallel Generation
+
+Submit multiple generation requests in parallel to reduce wall-clock time:
 
 ```bash
-# Gemini → Video (local file)
-python image-generation/scripts/generate_gemini_image.py "a warrior in a dark forest" \
-  --aspect-ratio 16:9 --output warrior.png
-python video-generation/scripts/generate_video.py "slow pan across the warrior" \
-  --image ./warrior.png --model seedance-2-0
-
-# GPT Image → Video (URL)
-python image-generation/scripts/generate_image.py "a warrior in a dark forest" \
-  --size 1024x1024
-# Use the returned URL with video-generation
-python video-generation/scripts/generate_video.py "slow pan across the warrior" \
-  --image https://example.com/returned_url.jpg --model seedance-2-0
+# Parallel in shell
+python scripts/generate_gemini_image.py "character A" --output a.png &
+python scripts/generate_gemini_image.py "character B" --output b.png &
+python scripts/generate_gemini_image.py "character C" --output c.png &
+wait
 ```
 
-**Note:** For `--first-frame`, `--last-frame`, and `--reference-image` in video-generation, only URLs are accepted. Upload local files to a publicly accessible URL first if using those modes.
+No server-side concurrency limit is enforced for image generation, but do not overwhelm the proxy endpoint.
+
+## Retry Strategy
+
+Failures happen. Common causes and responses:
+
+| Error | Likely Cause | Retry Action |
+|---|---|---|
+| `HTTP 429` | Rate limited | Wait 30–60 seconds, retry with same prompt |
+| `HTTP 500/503` | Server busy | Wait 60 seconds, retry with same prompt |
+| `timeout` | Request took too long | Retry with same prompt; for Gemini, try smaller `--image-size` |
+| Content policy rejection | Prompt or reference image flagged | Rewrite prompt. For character images, describe as **"fan art of an original character"** or **"original anime-style character"** to distinguish from real persons or protected IP. |
+
+**Always ask the user before retrying** — confirm whether to retry with the same prompt or modify it.
 
 ## Reference Documents
 
