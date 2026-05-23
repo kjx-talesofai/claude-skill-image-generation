@@ -1,6 +1,6 @@
 ---
 name: image-generation
-description: Generate images with GPT Image 2 or Gemini Image. Triggers: gpt-image, gemini-image, create image.
+description: "Generate images with GPT Image 2 or Gemini Image. Triggers: gpt-image, gemini-image, create image."
 ---
 
 # Image Generation
